@@ -13,16 +13,91 @@
 module top_tb(
     );
     
-//Todo: Parameters
+    parameter CLK_PERIOD = 10;
 
-//Todo: Regitsers and wires
+   //registers and wires
+    reg clk;
+    reg rst;
+    reg direction;
+    reg enable;
+    reg err;
+    wire [7:0] counter_out;
+    reg [7:0] counter_out_prev;
 
-//Todo: Clock generation
+   
+ //clock generation
+   
+    initial
+    begin
+       clk = 1'b0;
+       forever
+         #(CLK_PERIOD/2) clk=!clk;
+    end
+   
+ //logic
+  
+  initial begin
+       err = 0;
+       direction = 1;
+       rst = 1;
+       clk = 0;
+       enable = 0;
+     
+       #10
+	rst = 0;
+         forever begin
 
-//Todo: User logic
+       #10
+
     
-//Todo: Finish test, check for success
+       if ((((direction==1)&(counter_out!=(counter_out_prev+1)))| ((direction==0)&(counter_out!=(counter_out_prev-1))))&enable)
+        begin
+           $display("***TEST FAILED! counter_out==%d, counter_out_prev==%d, direction='%d', enable ='%d' ***",counter_out,counter_out_prev,direction,enable);
+           err=1;
+         end
+  
+       if (rst&(counter_out!=0))
+         begin
+           $display("***TEST FAILED! counter_out==%d, counter_out_prev==%d, reset='%d' ***",counter_out,counter_out_prev,rst);
+	err = 1;
+		 end
+  
+       if ((!enable&(counter_out!=counter_out_prev))| (enable&(counter_out==counter_out_prev)))
+         begin
+           $display("***TEST FAILED! counter_out==%d, counter_out_prev==%d, enable='%d' ***",counter_out,counter_out_prev,enable);
+	err = 1;
+		 end
 
-//Todo: Instantiate counter module
+      counter_out_prev=counter_out;
+
+        if (enable == 0)
+         enable = 1;
+         if (counter_out==8'b11111111)
+           direction=0;
+	if ((direction == 0) & (counter_out == 8'b11111100))
+		rst = 1;
+	if (counter_out == 0)
+		rst = 0;
+        end
+     end
+    
+ //Finish test, check for success
+
+     initial begin
+        #1000 
+        if (err==0)
+          $display("***TEST PASSED! :) ***");
+        $finish;
+      end
+
+ //Instantiate counter module
+
+         counter top (
+	     .direction (direction),
+	     .rst (rst),
+	     .enable (enable),
+		 .clk (clk),
+	     .counter_out (counter_out)
+	     );
  
-endmodule 
+ endmodule 
