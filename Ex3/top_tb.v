@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Test bench for Exercise #3 - Up/Down counter
-// Student Name:
-// Date: 
+// Student Name: Robbie Frost
+// Date: 09/06/20
 //
 // Description: A testbench module to test Ex3 - counter
 // Guidance: start with simple tests of the module (how should it react to each 
@@ -36,10 +36,11 @@ module top_tb(
    
  //logic
   
+    //initial conditions
   initial begin
        err = 0;
        direction = 1;
-       rst = 1;
+       rst = 1;          
        clk = 0;
        enable = 0;
      
@@ -49,12 +50,12 @@ module top_tb(
 
        #10
 
-    
-       if ((((direction==1)&(counter_out!=(counter_out_prev+1)))| ((direction==0)&(counter_out!=(counter_out_prev-1))))&enable)
-        begin
-           $display("***TEST FAILED! counter_out==%d, counter_out_prev==%d, direction='%d', enable ='%d' ***",counter_out,counter_out_prev,direction,enable);
-           err=1;
-         end
+      //display error if counter not working
+       if ((((direction==1)&(counter_out!=(counter_out_prev+1)))| ((direction==0)&(counter_out!=(counter_out_prev-1))))&enable&(!rst))
+          begin
+         $display("***TEST FAILED! counter_out==%d, counter_out_prev==%d, direction='%d', enable ='%d', reset = '%d' ***",         counter_out,counter_out_prev,direction,enable,rst);
+        err = 1;
+          end
   
        if (rst&(counter_out!=0))
          begin
@@ -72,19 +73,21 @@ module top_tb(
 
         if (enable == 0)
          enable = 1;
-         if (counter_out==8'b11111111)
+         if (counter_out==8'b00000011)
            direction=0;
-	if ((direction == 0) & (counter_out == 8'b11111100))
+	if ((direction == 0) & (counter_out == 8'b00000001))
 		rst = 1;
 	if (counter_out == 0)
 		rst = 0;
+        if (rst == 1)
+		direction = 1;
         end
      end
     
  //Finish test, check for success
 
      initial begin
-        #1000 
+        #100
         if (err==0)
           $display("***TEST PASSED! :) ***");
         $finish;

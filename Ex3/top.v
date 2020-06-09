@@ -19,7 +19,7 @@
 `timescale 1ns / 100ps
 
 module counter(
-    //add ports 
+    //ports 
     input clk,
     input rst, 
     input enable,
@@ -29,7 +29,7 @@ module counter(
 
     );
 
- //add registers
+ //registers
    reg [7:0] counter out;
 
     //logic
